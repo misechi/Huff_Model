@@ -66,7 +66,16 @@ beta = st.sidebar.slider("距離抵抗係数 (β)", 1.0, 3.0, 2.0, 0.1)
 
 st.header("1. 解析エリアデータの読み込み")
 uploaded_file = st.file_uploader("テンプレート形式のCSVをアップロード（1列目:コード, 3列目:人口）", type="csv")
-
+if uploaded_file is not None:
+    try:
+        # まずは一般的な UTF-8 で試す
+        df = pd.read_csv(uploaded_file)
+    except UnicodeDecodeError:
+        # エラーが出たら 日本語標準の Shift-JIS (cp932) で再試行
+        uploaded_file.seek(0) # 読み取り位置を最初に戻す
+        df = pd.read_csv(uploaded_file, encoding="cp932")
+    
+    st.write(df)
 if uploaded_file:
     # 列名に関わらず位置で指定して読み込み
     raw_df = pd.read_csv(uploaded_file)
