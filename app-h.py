@@ -68,9 +68,14 @@ st.header("1. 解析エリアデータの読み込み")
 uploaded_file = st.file_uploader("テンプレート形式のCSVをアップロード（1列目:コード, 3列目:人口）", type="csv")
 
 if uploaded_file is not None:
-    uploaded_file.seek(0) # 念のため先頭に戻す
-    raw_df = pd.read_csv(uploaded_file)
-    # ここに続きの処理を書く
+    try:
+        # まず標準的な UTF-8 で読み込む
+        uploaded_file.seek(0)
+        raw_df = pd.read_csv(uploaded_file)
+    except UnicodeDecodeError:
+        # エラーが出たら 日本語Windows標準の Shift-JIS(cp932) で読み直す
+        uploaded_file.seek(0)
+        raw_df = pd.read_csv(uploaded_file, encoding="cp932")    # ここに続きの処理を書く
     
     # ユーザー指定の形式に従い、1列目と3列目を抽出してリネーム
     df = pd.DataFrame({
