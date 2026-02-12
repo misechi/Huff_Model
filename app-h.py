@@ -58,7 +58,7 @@ def hubeny_distance(lat1, lon1, lat2, lon2):
     return math.sqrt((dy * m)**2 + (dx * n * math.cos(mu))**2)
 
 st.set_page_config(page_title="ハフモデル分析・最新版", layout="wide")
-st.title("🗺️ ハフモデル総合勢力シミュレーター")
+st.title("🗺️ ハフモデルシミュレーター")
 
 st.sidebar.header("⚙️ 計算パラメータ")
 alpha = st.sidebar.slider("魅力度係数 (α)", 0.5, 2.0, 1.0, 0.1)
