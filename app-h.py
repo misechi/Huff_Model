@@ -160,11 +160,36 @@ if uploaded_file is not None:
                         origin='lower', title="勢力図（赤:店1, 青:店2, 緑:店3 / 明るさ:人口密度）")
         st.plotly_chart(fig, use_container_width=True)
 
-        # ダウンロード
+
+# --- 4. 結果出力（修正版） ---
         st.header("4. 結果出力")
-        drop_list = ['c_lat', 'c_lon', 'diag_m', 'l_min', 'l_max', 'ln_min', 'ln_max', 'total_G'] + [f'G_{i}' for i in range(len(stores))]
-        out_df = df.drop(columns=drop_list)
-        st.download_button("📥 計算結果(距離・確率込)をCSVで保存", out_df.to_csv(index=False).encode('utf-8-sig'), "huff_result.csv", "text/csv")
-        st.dataframe(out_df.head())
+
+        # 表示・出力用のカラムリストを動的に作成
+        # 指定の順序：mesh_code, population, dist, prob, expected
+        col_dist = [f'dist_{s["name"]}(m)' for s in stores]
+        col_prob = [f'prob_{s["name"]}' for s in stores]
+        col_exp  = [f'expected_{s["name"]}' for s in stores]
+        
+        target_columns = ["mesh_code", "population"] + col_dist + col_prob + col_exp
+
+        # 指定したカラムのみを抽出し、順序を整える（X, Y座標などはここで自動的に除外されます）
+        try:
+            out_df = df[target_columns]
+            
+            # ブラウザ上での表示
+            st.dataframe(out_df)
+
+            # CSVダウンロードボタン
+            # Excelでの文字化けを防ぐため utf-8-sig を使用
+            csv_data = out_df.to_csv(index=False).encode('utf-8-sig')
+            st.download_button(
+                label="📥 計算結果をCSVで保存",
+                data=csv_data,
+                file_name="huff_model_result.csv",
+                mime="text/csv"
+            )
+        except KeyError as e:
+            st.error(f"エラー: カラムの作成に失敗しました。{e}")
+
 else:
     st.info("CSVファイルをアップロードしてください。")
